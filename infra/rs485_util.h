@@ -9,6 +9,6 @@ void close_rs485();
 void notify_recv();
 int send_to_rs485(const void *_buff, const uint16_t _len);
 int recv_from_rs485(void *_buff, const uint16_t _len);
-int send_to_rs485_sync();
+int send_to_rs485_sync(const void* _data, const uint16_t _lenth);
 
 #endif

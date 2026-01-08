@@ -4,7 +4,7 @@
 #include "com_event.h"
 #include "msg_util.h"
 #include "mq_util.h"
-#include "rs485 util.h"
+#include "rs485_util.h"
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
@@ -97,12 +97,13 @@ static int connect_socket(const char *socket_name)
     return socket_handle;
 }
 
-static char* get_msg_head(const char *text, int idxLen, const char *patn, int patnlen)
+static char* get_msg_head(const char *text, int idxLen, const char *patn, int patnLen)
 {
     ASSERT_NOT_NULL(text, NULL, PRT);
     ASSERT_NOT_NULL(patn, NULL, PRT);
 
     int idxText,idxPatn;
+
     if((idxLen < 0) || (patnLen < 0))
     {
         return NULL;
@@ -150,12 +151,12 @@ static int recv_raw_data(char *msg_buff, uint16_t *curr_len)
     rcv_cnt = recv_from_rs485(raw_data, sizeof(raw_data));//从485缓冲区读出
     if(rcv_cnt > 0)
     {
-        if(((*curr len) + rcv_cnt)> RX_BUFF_LEN)
+        if(((*curr_len) + rcv_cnt)> RX_BUFF_LEN)
         {
             // TRACE_ERR(PRT,"recv raw data FAILED");
             return FAILED;
         }
-        memcpy(msg buff + (*curr len), raw_data, rcv_cnt);
+        memcpy(msg_buff + (*curr_len), raw_data, rcv_cnt);
         (*curr_len) += rcv_cnt;
     }
 
@@ -176,7 +177,7 @@ static int try_recv_body(char* recv_dst)
         return SUCCESS;
     }
 
-    next step = STEP_RECV_FULL;
+    next_step = STEP_RECV_FULL;
 
     // TRACE_INFO(PRT, "recv len = %d CONINUE!", msg buff + rx_add up_len . head pos );
     return CONTINUE;
@@ -245,13 +246,13 @@ static int try_recv_old_msg_body(char *msg_dst, const uint16_t len)
         int cp_cnt = 0;
 
         memcpy(msg_dst, head_pos, (len + 9));
-        cp_cnt = ((msg buff + rx_add_up_len) - (head_pos + len + 9));
-        memcpy(msg_buff, (head pos + len +9), cp_cnt);
+        cp_cnt = ((msg_buff + rx_add_up_len) - (head_pos + len + 9));
+        memcpy(msg_buff, (head_pos + len +9), cp_cnt);
         memset(msg_buff + cp_cnt, 0, sizeof(msg_buff) - cp_cnt);
         rx_add_up_len = cp_cnt;
         // TRACE INFO(PRT,"recv old_msg 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x x%02x".
         //                 msg_dst[e], msg_dst[1], msg_dst[2], msg dst[3], msg_dst[4], msg_dst[5], msg dst[6]);
-        next_step = STEP_RECV_ END;
+        next_step = STEP_RECV_END;
         return SUCCESS;
     }
 
@@ -293,15 +294,15 @@ static int convert_old_to_new(char *raw_msg)
     Msg_pkg format_msg;
     uint8_t check_sum_offset =0;
     (void)memset(&format_msg, 0x00,sizeof(format_msg));
-    format_msg.head.text,magic[0] = MAGIC_WORD[0];
+    format_msg.head.text.magic[0] = MAGIC_WORD[0];
     format_msg.head.text.magic[1] = MAGIC_WORD[1];
     format_msg.head.text.event = raw_msg[FRAME_CMD_OFFSET];
     format_msg.head.text.cmd_type_old = raw_msg[FRAME_CMD_TYPE_OFFSET];
-    format_msg.head.text.dst dir.shelf = raw_msg[FRAME_DEV_OFFSET];
-    format_msg.head.text.dst dir.card = raw_msg[FRAME_CARD_OFFSET];
-    format_msg.head.text.dst dir.pid = get_pid_by_event(format_msg.head.text.event);
+    format_msg.head.text.dst_dir.shelf = raw_msg[FRAME_DEV_OFFSET];
+    format_msg.head.text.dst_dir.card = raw_msg[FRAME_CARD_OFFSET];
+    format_msg.head.text.dst_dir.pid = get_pid_by_event(format_msg.head.text.event);
     format_msg.head.text.total_len = raw_msg[FRAME_LEN_OFFSET] + sizeof(format_msg.head) + sizeof(format_msg.fcs);
-    format_msg.head.text.protocol type = OLD_PTP;
+    format_msg.head.text.protocol_type = OLD_PTP;
 
     check_sum_offset = FRAME_DATA_OFFSET + raw_msg[FRAME_LEN_OFFSET];
     format_msg.fcs = raw_msg[check_sum_offset];// 用fcs来存放老版本消息的checksum
@@ -335,24 +336,24 @@ static uint16_t convert_new_to_old(const Msg_pkg* new_msg, char* old_msg)
     ASSERT_NOT_NULL(new_msg, msg_len, PRT);
 
     old_msg[FRAME_HAED_OFFSET] = 'S';
-    Old_MSg[FRAME_HAED_OFFSET + 1] = 'M';
+    old_msg[FRAME_HAED_OFFSET + 1] = 'M';
     old_msg[FRAME_DEV_OFFSET] = new_msg->head.text.dst_dir.shelf;
     old_msg[FRAME_CARD_OFFSET] = new_msg->head.text.dst_dir.card;
     old_msg[FRAME_CMD_TYPE_OFFSET]= new_msg->head.text.cmd_type_old;
     old_msg[FRAME_CMD_OFFSET] = new_msg->head.text.event;
     old_msg[FRAME_LEN_OFFSET] = get_msg_len_from_pkg(new_msg);
-    (void)memcpy(&old_msg[FRAME DATA OFFSET], new_msg->data, old_msg[FRAME_LEN_OFFSET]);
+    (void)memcpy(&old_msg[FRAME_DATA_OFFSET], new_msg->data, old_msg[FRAME_LEN_OFFSET]);
 
     old_msg[FRAME_HEADER_LEN + old_msg[FRAME_LEN_OFFSET]] = check_485fcs(old_msg + 2, old_msg[FRAME_LEN_OFFSET] + 3 + 2);
     old_msg[FRAME_HEADER_LEN + old_msg[FRAME_LEN_OFFSET] + 1] = '@';
-    msg_len = old_msg[FRAME LEN OFFSET]+ FRAME_HEADER_LEN + 2;//头+数据+fcs+尾
+    msg_len = old_msg[FRAME_LEN_OFFSET]+ FRAME_HEADER_LEN + 2;//头+数据+fcs+尾
 
     return msg_len;
 }
 
 static int try_recv_full_msg(char *raw_msg)
 {
-    ASSERT_NOT_NULL(raw, FAILED, PRT);
+    ASSERT_NOT_NULL(raw_msg, FAILED, PRT);
 
     total_recv_len = 0;
     rx_add_up_len = 0;
@@ -551,7 +552,7 @@ uint8_t calc_msg_xor(const Msg_pkg *msg)
 
     for (int i = 0; i < (msg->head.text.total_len - sizeof(msg->fcs) - sizeof(msg->head)); i++)
     {
-        xor ^= msg->msg[i];
+        xor ^= msg->data[i];
     }
 
     return xor;
@@ -560,7 +561,7 @@ uint8_t calc_msg_xor(const Msg_pkg *msg)
 void package_msg(Msg_pkg *_msg_buff, const uint16_t _event_id, const Msg_direction *_dst_dir, \
                  const void *_data_tmp, const uint16_t _data_len, const uint8_t _is_ack)
 {
-    ASSERT_NOT_NULL_WITH_ACT(_msg_buff, return; PRT);
+    ASSERT_NOT_NULL_WITH_ACT(_msg_buff, return, PRT);
     ASSERT_NOT_NULL_WITH_ACT(_dst_dir, return, PRT);
 
     _msg_buff->head.text.magic[0] = MAGIC_WORD[0];
@@ -723,7 +724,7 @@ int try_create_socket(const char *sockname, int nconn)
     ASSERT_NOT_NULL(sockname, FAILED, PRT);
 
     int socket_handle = 0;
-    struct socketaddr_un local;
+    struct sockaddr_un local;
 
     if ((socket_handle = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {

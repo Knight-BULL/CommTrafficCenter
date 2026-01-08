@@ -33,7 +33,7 @@ bool deliver_mail(const Msg_pkg *msg)
 {
     pthread_mutex_lock(&mailbox_lock);
 
-    boot ret = push_mailbox(&msg_mailbox, msg);
+    bool ret = push_mailbox(&msg_mailbox, msg);
 
     pthread_cond_signal(&mailbox_cond);
     pthread_mutex_unlock(&mailbox_lock);

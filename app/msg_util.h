@@ -36,3 +36,5 @@ Msg_head get_event_head(const char *_data);
 uint16_t get_msg_len(const char *_data);
 uint16_t get_msg_len_from_pkg(const Msg_pkg *_pkg);
 int try_create_socket(const char *sockname, int nconn);
+
+#endif

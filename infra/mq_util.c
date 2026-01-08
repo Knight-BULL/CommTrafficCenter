@@ -7,13 +7,13 @@
 struct mq_attr mq_attr;
 mqd_t mqdes_int = 0;
 
-const char *mq_name = "/TransmitQueue"
+const char *mq_name = "/TransmitQueue";
 
 int open_msg_queue(const uint32_t msg_size)
 {
     mq_attr.mq_maxmsg = MAX_MSG_NUM;
     mq_attr.mq_msgsize = msg_size;
-    mqdes_int = mq_open(mq_name, ORDWR|O_CREAT, 0777, &mq_attr);
+    mqdes_int = mq_open(mq_name, O_RDWR|O_CREAT, 0777, &mq_attr);
 
     ASSERT_FALSE(-1 == mqdes_int, FAILED, PRT);
 
@@ -22,7 +22,7 @@ int open_msg_queue(const uint32_t msg_size)
 
 void close_msg_queue()
 {
-    close(mqdes_int)
+    close(mqdes_int);
 }
 
 int send_msg_to_mq(const void *_data, const uint16_t _len)
@@ -50,7 +50,7 @@ int recv_msg_from_mq(void *_data, const uint16_t _len)
     (void)memset(&wait_time, 0x00, sizeof(wait_time));
 
     time(&wait_time.tv_sec);
-    wait_time.tc_nsec = 0;
+    wait_time.tv_nsec = 0;
     wait_time.tv_sec++;
 
     int rcvd = mq_timedreceive(mqdes_int, (char *)_data, _len, NULL, &wait_time);

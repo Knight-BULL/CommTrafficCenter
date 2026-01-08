@@ -3,7 +3,7 @@
 #include "com_def.h"
 #include <string.h>
 
-int ctc_send_msg(cosnt uint16_t event, const Msg_direction* dst_dir,\
+int ctc_send_msg(const uint16_t event, const Msg_direction* dst_dir,\
                  const void *data, const uint16_t len, const uint8_t is_need_ack)
 
 {
@@ -15,7 +15,7 @@ int ctc_send_msg(cosnt uint16_t event, const Msg_direction* dst_dir,\
 
     Msg_pkg msg;
     (void)memset(&msg, 0x00, sizeof(msg));
-    package_new_ptp_msg(&msg, event)
+    package_new_ptp_msg(&msg, event, dst_dir, data, len, is_need_ack);
 
     if (is_cross_dev(dst_dir->shelf, dst_dir->card))
     {
@@ -74,7 +74,7 @@ int ctc_send_inter_msg(const uint16_t _event, const uint8_t _pid, const void* _d
     Msg_direction dst;
     dst.shelf = get_self_shelf_id();
     dst.card = get_self_card_id();
-    dst.pid = pid;
+    dst.pid = _pid;
 
-    return ctc_send_msg(_event, &dst, _data, _len, _ack_flag)
+    return ctc_send_msg(_event, &dst, _data, _len, _ack_flag);
 }

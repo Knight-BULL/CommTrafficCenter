@@ -10,13 +10,13 @@
 #define LOG         ((uint8_t)0x01)
 #define PRT         ((uint8_t)0x02)
 #define TRC         ((uint8_t)(LOG | PRT))
-#define NO_TRC      ((uint8 t)0x00)
+#define NO_TRC      ((uint8_t)0x00)
 
 #define IS_LOG(flag) (flag&LOG)?true:false
 #define IS_PRT(flag) (flag&PRT)?true:false
 
-#define LOG_INFO(format, ...)  syslog(LOG_LOCAL4 | LOG DEBUG, "-INFOR- [%s: %s() L:%d]: "format"\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__)
-#define LOG_ERRO(format, ...)  syslog(LOG_LOCAL4 | LOG DEBUG, "-ERROR- [%s: %s() L:%d]: "format"\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)  syslog(LOG_LOCAL4 | LOG_DEBUG, "-INFOR- [%s: %s() L:%d]: "format"\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__)
+#define LOG_ERRO(format, ...)  syslog(LOG_LOCAL4 | LOG_DEBUG, "-ERROR- [%s: %s() L:%d]: "format"\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__)
 
 #define PRT_INFO(format, ...)  printf("-INFOR- [%s: %s() L:%d]: "format"\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__)
 #define PRT_ERRO(format, ...)  printf("-ERROR- [%s: %s() L:%d]: "format"\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__)
@@ -149,12 +149,13 @@
     }while(0)
 
 #define container_of(ptr, type, member) ({                          \      
-    const typedef( ((type *)0)->member) *__mptr = (ptr);            \
+    const typeof( ((type *)0)->member) *__mptr = (ptr);             \
     (type *)( (char *)__mptr - OFFSET(type, member) );              \
 })
 
 #define OFFSET(type, member) ((size_t)&((type *)0)->member)
 
+#define MAX_MSG_NUM 64
 
 #define INVALID_UINT8     ((uint8_t)0xFF)
 #define INVALID_UINT16    ((uint8_t)0xFFFF)

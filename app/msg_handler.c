@@ -38,7 +38,7 @@ void *event_poster(void *arg)
     (void)memset(&recv_buf, 0x00, sizeof(recv_buf));
 
     int socket_id = 0;
-    socklen_t sockaddr_size - sizeof(struct sockaddr);
+    socklen_t sockaddr_size = sizeof(struct sockaddr);
     int recv_size = 0;
     int socket_local = 0;
     struct sockaddr_un remote;

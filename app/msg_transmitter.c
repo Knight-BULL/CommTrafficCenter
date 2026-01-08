@@ -20,7 +20,7 @@ void *inter_transmitter(void *arg)
         Msg_pkg msg_tmp;
         (void)memset(&msg_tmp, 0x00, sizeof(msg_tmp));
 
-        if (SUCCESS == recv_msg_from_exter(&msg_tmp, sizeof(msg_tmp)))
+        if (SUCCESS == recv_msg_from_exter(&msg_tmp))
         {
             // TRACE_INFO
             const uint8_t dst_proc = msg_tmp.head.text.dst_dir.pid;

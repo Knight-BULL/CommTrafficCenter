@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/mman.h>
-#include "gpio_ioctl.h"
+// #include "gpio_ioctl.h"
 #include <stdint.h>
 #include "rs485_util.h"
 #include "com_def.h"
@@ -31,13 +31,13 @@ Ack_Syncer ack_syncer;
 
 int set_serial_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop)
 {
-    struct termios newtio, oldtio;
+    // struct termios newtio, oldtio;
 
-    if (tcgetattr(fd, &oldtio) != 0)
-    {
-        perror("SetupSerial 1");
-        return FAILED;
-    }
+    // if (tcgetattr(fd, &oldtio) != 0)
+    // {
+    //     perror("SetupSerial 1");
+    //     return FAILED;
+    // }
     
 
     return SUCCESS;
@@ -48,14 +48,14 @@ int iomon_get_frs485_fd(void)
 {
     int frs485_fd;
 
-    frs485_fd = open("/dev/ttyS8", O_RDWR|O_NOCTTY|O_NDELAT);
+    frs485_fd = open("/dev/ttyS8", O_RDWR|O_NOCTTY|O_NDELAY);
     if (frs485_fd < 0)
     {
         // TRACE_ERR
         return FAILED;
     }
 
-    fcntl(fcs485_fd, F_SETFL, 0);
+    fcntl(frs485_fd, F_SETFL, 0);
 
     if (frs485_fd > 0)
     {
@@ -72,7 +72,7 @@ int iomon_get_frs485_fd(void)
 
 void create_ack_ayncer()
 {
-    pthread_mutex_init(&act_syncer.lock, NULL);
+    pthread_mutex_init(&ack_syncer.lock, NULL);
 
     pthread_condattr_t attr;
     pthread_condattr_init(&attr);
@@ -99,7 +99,7 @@ int init_gpio()
 
     if (ctc_gpio_fd > 0)
     {
-        ioctl(ctc_gpio_fd, SET_GPIO1_LOW);
+        // ioctl(ctc_gpio_fd, SET_GPIO1_LOW);
     }
 
     return SUCCESS;
@@ -109,11 +109,11 @@ void set_rs485_tx_en(int state)
 {
     if (state)
     {
-        ioctl(ctc_gpio_fd, SET_GPIO1_HIGH);
+        // ioctl(ctc_gpio_fd, SET_GPIO1_HIGH);
     }
     else
     {
-        ioctl(ctc_gpio_fd, SET_GPIO1_LOW);
+        // ioctl(ctc_gpio_fd, SET_GPIO1_LOW);
     }
 }
 
@@ -192,7 +192,7 @@ struct timespec get_time_out_len()
     return abstime;
 }
 
-int send_to_rs485_sync()
+int send_to_rs485_sync(const void* _data, const uint16_t _lenth)
 {
     int reslt = 0;
 

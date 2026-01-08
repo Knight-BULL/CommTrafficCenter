@@ -43,23 +43,23 @@ void init_syncers()
 {
     pthread_mutex_init(&syncers_lock, NULL);
 
-    for (int i=0; i < MAX MSG_NUM; i++)
+    for (int i=0; i < MAX_MSG_NUM; i++)
     {
-        pthread mutex init(&(event_syncers[i]._lock),NULL);
+        pthread_mutex_init(&(event_syncers[i]._lock),NULL);
 
         //初始化条件变量(使用 CLOCK_MONOTONIC)
         pthread_condattr_t attr;
         pthread_condattr_init(&attr);
-        pthread_condattr_setclock(&attr,CLOCK MONOTONIC);
+        pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
         pthread_cond_init(&(event_syncers[i]._cond), &attr);
         pthread_condattr_destroy(&attr);
         
         event_syncers[i]._is_valid = true;
-        event syncers[i]._on_event = INVALID_EVENT;
+        event_syncers[i]._on_event = INVALID_EVENT;
         event_syncers[i]._handle = NULL;
-        event_syncers[i].len = 0;
-        event syncers[i]._sync data = NULL;
-        (void)memset(&(event_syncers[i]._msg),0x00,sizeof(Msg_pkg))
+        event_syncers[i]._len = 0;
+        event_syncers[i]._sync_data = NULL;
+        (void)memset(&(event_syncers[i]._msg),0x00,sizeof(Msg_pkg));
     }
 }
 
@@ -180,7 +180,7 @@ static void notify_handle(Event_syncer* curr_syncer, const Msg_pkg* sync_msg)
 
     pthread_mutex_lock(&(curr_syncer->_lock));
     pthread_cond_signal(&(curr_syncer->_cond));
-    pthread_mutex_unlock(&(curr_syncer->_lock))
+    pthread_mutex_unlock(&(curr_syncer->_lock));
 }
 
 static void free_syncer(Event_syncer* curr_syncer)

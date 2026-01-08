@@ -10,7 +10,7 @@ typedef struct T_proc_socket_mag
 Proc_socket_map comm_matrix[] = 
 {
     {.pid = REF_SEL_PROC, .socket_name = "/tmp/.ref_sel"},
-}
+};
 
 char *get_comm_info_from_matrix(const uint8_t proc_id)
 {

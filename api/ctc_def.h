@@ -2,10 +2,10 @@
 #define __MSG_DEF__H__
 
 #include <stdint.h>
-#include "com_def.h"
+#include "../utils/com_def.h"
 
 #define NEED_ACK        ((uint8_t)1)
-#define NEED_ACK        ((uint8_t)0)
+#define NO_ACK          ((uint8_t)0)
 
 #define SOCKET_NCONN    ((uint8_t)5)
 
@@ -35,9 +35,9 @@ void ack_for_old_set_msg(const char* data_, const int8_t ack_status);
 #define EVENT_PROCESS_END\
         default:\
             return FAILED;\
-        }
+        }\
         ack_for_old_set_msg(_data, ret);\
-        return SUCCESS;
+        return SUCCESS;\
     }
 
 typedef enum E_proc_list
@@ -50,7 +50,7 @@ typedef struct T_msg_direction
 {
     uint8_t shelf;
     uint8_t card;
-    uint8_t pid
+    uint8_t pid;
 }Msg_direction;
 
 typedef struct 
@@ -75,7 +75,7 @@ typedef struct T_msg_entity
 {
     Msg_head head;
     uint8_t fcs;
-    char data[MAX_BODY_LEN]
+    char data[MAX_BODY_LEN];
 }Msg_pkg;
 
 typedef struct T_mailbox
@@ -117,8 +117,8 @@ void start_comm_traffic_center(const uint8_t curr_proc_id);
 int wait_on(const uint16_t event, void* data, const uint16_t len);
 int wait_on_with_act(const uint16_t event, Handler func);
 
-Msg_direction get_src_info(cosnt char *_data);
-Msg_direction get_dst_info(cosnt char *_data);
+Msg_direction get_src_info(const char *_data);
+Msg_direction get_dst_info(const char *_data);
 uint16_t get_event_id(const char *_data); 
 uint8_t get_old_cmd_type(const char *_data);
 uint8_t get_ptp_type(const char *_data);
