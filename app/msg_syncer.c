@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <stdbool.h>
+#include "ctc_trace.h"
 
 typedef struct T_event_syncer
 {
@@ -47,7 +48,7 @@ void init_syncers()
     {
         pthread_mutex_init(&(event_syncers[i]._lock),NULL);
 
-        //初始化条件变量(使用 CLOCK_MONOTONIC)
+        //初始化条件变�?(使用 CLOCK_MONOTONIC)
         pthread_condattr_t attr;
         pthread_condattr_init(&attr);
         pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
@@ -120,7 +121,7 @@ static int sync_act(Event_syncer *syncer)
 
     if (ret_wait == ETIMEDOUT)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         pthread_mutex_unlock(&(syncer->_lock));
         return FAILED;
     }
@@ -143,7 +144,7 @@ static int sync_data(Event_syncer *syncer)
 
     if (pthread_mutex_lock(&(syncer->_lock)) != 0)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
@@ -153,14 +154,14 @@ static int sync_data(Event_syncer *syncer)
 
     if (ret_wait == ETIMEDOUT)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         pthread_mutex_unlock(&(syncer->_lock));
         return FAILED;
     }
 
     if (syncer->_sync_data == NULL)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         ret = FAILED;
     }
     else
@@ -232,12 +233,12 @@ int sync_event(const Msg_pkg* msg)
         if(msg->head.text.event == event_syncers[i]._on_event)
         {
             notify_handle(&event_syncers[i],msg);
-            // TRACE_INFO(PRT, "sync event[0x%x] SUCCESS!", msg->head.text.event);
+            // CTC_TRACE_INFO(PRT, "sync event[0x%x] SUCCESS!", msg->head.text.event);
             pthread_mutex_unlock(&syncers_lock);
             return SUCCESS;
         }
     }
-    // TRACE_INFO(PRT, "event[ox%x] seems not need sync, try handle directly!", msg->l
+    // CTC_TRACE_INFO(PRT, "event[ox%x] seems not need sync, try handle directly!", msg->l
     pthread_mutex_unlock(&syncers_lock);
     return FAILED;
 }

@@ -2,6 +2,7 @@
 #include "msg_util.h"
 #include "com_def.h"
 #include <string.h>
+#include "ctc_trace.h"
 
 int ctc_send_msg(const uint16_t event, const Msg_direction* dst_dir,\
                  const void *data, const uint16_t len, const uint8_t is_need_ack)
@@ -9,7 +10,7 @@ int ctc_send_msg(const uint16_t event, const Msg_direction* dst_dir,\
 {
     if (len > MAX_BODY_LEN)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
@@ -21,15 +22,15 @@ int ctc_send_msg(const uint16_t event, const Msg_direction* dst_dir,\
     {
         if (len > MAX_EXT_MSG_LEN)
         {
-            // TRACE_ERR
+            // CTC_TRACE_ERRO
             return FAILED;
         }
 
-        // TRACE_INFO
+        // CTC_TRACE_INFO
         return transmit_msg(&msg, sizeof(msg));
     }
 
-    // TRACE_INFO
+    // CTC_TRACE_INFO
     return send_msg_to_local(dst_dir->pid, &msg, sizeof(msg));
 }
 
@@ -38,7 +39,7 @@ int ctc_send_old_msg(const uint16_t event, const Msg_direction* dst_dir, const v
 {
     if (len > MAX_BODY_LEN)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
@@ -48,11 +49,11 @@ int ctc_send_old_msg(const uint16_t event, const Msg_direction* dst_dir, const v
 
     if (len > MAX_EXT_MSG_LEN)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
-    // TRACE_INFO
+    // CTC_TRACE_INFO
     return transmit_msg(&msg, sizeof(msg));
 }
 

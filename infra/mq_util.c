@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include "mq_util.h"
 #include "com_def.h"
+#include "assert.h"
+#include "trace_com.h"
 
 struct mq_attr mq_attr;
 mqd_t mqdes_int = 0;

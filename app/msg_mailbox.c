@@ -1,6 +1,7 @@
 #include "ctc_def.h"
 #include <pthread.h>
 #include <stdbool.h>
+#include "ctc_trace.h"
 
 Mailbox msg_mailbox;
 pthread_mutex_t mailbox_lock;
@@ -46,6 +47,11 @@ bool fetch_mail(Msg_pkg *msg)
     traverse_mailbox(&msg_mailbox);
 }
 
+void show_mailbox()
+{
+    traverse_mailbox(&msg_mailbox);
+}
+
 bool is_mailbox_empty()
 {
     return is_empty(&msg_mailbox);
@@ -72,7 +78,7 @@ bool push_mailbox(Mailbox *mb, const Msg_pkg *msg)
 {
     if (is_full(mb))
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return false;
     }
 
@@ -87,14 +93,14 @@ void traverse_mailbox(Mailbox *mb)
 {
     int i = mb->front;
     
-    printf("|---------mailbox-----------|\n");
+    CTC_TRACE_INFO(PRT, "|---------mailbox-----------|\n");
     while (i != mb->rear)
     {
-        printf("|--src[%4d]-event[0x%4x]-len[%4d]--|\n", mb->msg_queue[i].head.text.src_dir.pid, mb->msg_queue[i].head.text.event, mb->msg_queue[i].head.text.total_len);
+        CTC_TRACE_INFO(PRT, "|--src[%4d]-event[0x%4x]-len[%4d]--|\n", mb->msg_queue[i].head.text.src_dir.pid, mb->msg_queue[i].head.text.event, mb->msg_queue[i].head.text.total_len);
         i = (i +1) % MAX_MSG_NUM;
     }
 
-    printf("|---------------------------|\n");
+    CTC_TRACE_INFO(PRT, "|---------------------------|\n");
 
     return;
 }
@@ -113,7 +119,7 @@ bool pop_mailbox(Mailbox *mb, Msg_pkg *msg)
 {
     if (is_empty(mb))
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return false;
     }
 

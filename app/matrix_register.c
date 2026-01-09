@@ -1,5 +1,6 @@
 #include "ctc_def.h"
 #include "com_def.h"
+#include "ctc_trace.h"
 
 typedef struct T_proc_socket_mag
 {

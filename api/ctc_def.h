@@ -1,8 +1,9 @@
-#ifndef __MSG_DEF__H__
-#define __MSG_DEF__H__
+#ifndef __CTC_DEF__H__
+#define __CTC_DEF__H__
 
 #include <stdint.h>
-#include "../utils/com_def.h"
+#include "com_def.h"
+#include "assert.h"
 
 #define NEED_ACK        ((uint8_t)1)
 #define NO_ACK          ((uint8_t)0)

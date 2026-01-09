@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <stdbool.h>
+#include "ctc_trace.h"
 
 #define RX_BUFF_LEN ((uint16_t)(2 * sizeof(Msg_pkg)))
 
@@ -65,7 +66,7 @@ static int connect_socket(const char *socket_name)
 
     if ((socket_handle = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {
-        // TRACE_INFO
+        // CTC_TRACE_INFO
         return -1;
     }
 
@@ -88,12 +89,12 @@ static int connect_socket(const char *socket_name)
 
     if (conn_count >= 100)
     {
-        // TRACE_INFO
+        // CTC_TRACE_INFO
         close(socket_handle);
         return -1;
     }
  
-    // TRACE_INFO
+    // CTC_TRACE_INFO
     return socket_handle;
 }
 
@@ -148,19 +149,19 @@ static int recv_raw_data(char *msg_buff, uint16_t *curr_len)
     char raw_data[sizeof(Msg_pkg)];
     memset(raw_data, 0, sizeof(raw_data));
 
-    rcv_cnt = recv_from_rs485(raw_data, sizeof(raw_data));//从485缓冲区读出
+    rcv_cnt = recv_from_rs485(raw_data, sizeof(raw_data));//�?485缓冲区读�?
     if(rcv_cnt > 0)
     {
         if(((*curr_len) + rcv_cnt)> RX_BUFF_LEN)
         {
-            // TRACE_ERR(PRT,"recv raw data FAILED");
+            // CTC_TRACE_ERRO(PRT,"recv raw data FAILED");
             return FAILED;
         }
         memcpy(msg_buff + (*curr_len), raw_data, rcv_cnt);
         (*curr_len) += rcv_cnt;
     }
 
-    // TRACE_INFO(PRT, "recv raw data SuccEss" );
+    // CTC_TRACE_INFO(PRT, "recv raw data SuccEss" );
     return SUCCESS;
 }
 
@@ -179,13 +180,13 @@ static int try_recv_body(char* recv_dst)
 
     next_step = STEP_RECV_FULL;
 
-    // TRACE_INFO(PRT, "recv len = %d CONINUE!", msg buff + rx_add up_len . head pos );
+    // CTC_TRACE_INFO(PRT, "recv len = %d CONINUE!", msg buff + rx_add up_len . head pos );
     return CONTINUE;
 }
 
 static int try_recv_head(char* recv_dst)
 {
-    if(((msg_buff + rx_add_up_len)- head_pos)>= sizeof(Msg_head))//接收到的有效数据长度大于等于消息头的长度了
+    if(((msg_buff + rx_add_up_len)- head_pos)>= sizeof(Msg_head))//接收到的有效数据长度大于等于消息头的长度�?
     {
         Msg_head head_tmp;
         (void)memset(&head_tmp, 0x00, sizeof(Msg_head));
@@ -195,7 +196,7 @@ static int try_recv_head(char* recv_dst)
         total_recv_len = head_tmp.text.total_len;
         if (total_recv_len > sizeof(Msg_pkg))
         {
-            // TRACE_INFO(PRT, "total recv len=%d", total recv len);
+            // CTC_TRACE_INFO(PRT, "total recv len=%d", total recv len);
 
             next_step = STEP_RECV_START;
             return FAILED;
@@ -213,18 +214,18 @@ static int convert_old_to_new(char* raw_msg);
 
 static int start_recv(char* recv_dst)
 {
-    head_pos = get_msg_head(msg_buff, rx_add_up_len, MAGIC_WORD, 2);//检查帧头关键字，判断是否有关键字
+    head_pos = get_msg_head(msg_buff, rx_add_up_len, MAGIC_WORD, 2);//检查帧头关键字，判断是否有关键�?
     if(head_pos != NULL)
     {
-        // TRACE_INFO(PRT, "enter new recv flow");
+        // CTC_TRACE_INFO(PRT, "enter new recv flow");
         return try_recv_head(recv_dst);
     }
     else
     {
-        head_pos = get_msg_head(msg_buff, rx_add_up_len, OLD_MAGIC_WORD, 2);//检查帧头关键字，判断是否有关键字
+        head_pos = get_msg_head(msg_buff, rx_add_up_len, OLD_MAGIC_WORD, 2);//检查帧头关键字，判断是否有关键�?
         if(head_pos != NULL)
         {
-            // TRACE_INFO(PRT, "enter old recv flow");
+            // CTC_TRACE_INFO(PRT, "enter old recv flow");
             next_step = STEP_OLD_CHECK_LEN;
             if(SUCCESS == recv_msg_old_flow(recv_dst))
             {
@@ -346,7 +347,7 @@ static uint16_t convert_new_to_old(const Msg_pkg* new_msg, char* old_msg)
 
     old_msg[FRAME_HEADER_LEN + old_msg[FRAME_LEN_OFFSET]] = check_485fcs(old_msg + 2, old_msg[FRAME_LEN_OFFSET] + 3 + 2);
     old_msg[FRAME_HEADER_LEN + old_msg[FRAME_LEN_OFFSET] + 1] = '@';
-    msg_len = old_msg[FRAME_LEN_OFFSET]+ FRAME_HEADER_LEN + 2;//头+数据+fcs+尾
+    msg_len = old_msg[FRAME_LEN_OFFSET]+ FRAME_HEADER_LEN + 2;//�?+数据+fcs+�?
 
     return msg_len;
 }
@@ -408,11 +409,11 @@ static int msg_check(char *_msg)
 
     if (curr_card_id != (msg.head.text.dst_dir.card + 2))
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
-    // TRACE_INFO()
+    // CTC_TRACE_INFO(PRT, )
 
     if (msg.head.text.protocol_type == OLD_PTP)
     {
@@ -431,7 +432,7 @@ static int msg_check(char *_msg)
 
         if (calc_sum != msg.fcs)
         {
-            // TRACE_ERR
+            // CTC_TRACE_ERRO
             return FAILED;
         }
     }
@@ -442,7 +443,7 @@ static int msg_check(char *_msg)
 
         if (fcs_result != msg.fcs)
         {
-            // TRACE_ERR
+            // CTC_TRACE_ERRO
             return FAILED;
         }
     }
@@ -482,7 +483,7 @@ int send_msg_to_local(const uint8_t _pid, void * data, const uint16_t len)
 
     if (send(dst_socket, data, len, MSG_NOSIGNAL) == -1)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
 
         close(dst_socket);
         return FAILED;
@@ -514,21 +515,21 @@ int send_msg_to_remote(const Msg_pkg *_msg, const uint16_t _len)
     {
         if (SUCCESS == send_to_rs485(send_msg, send_len))
         {
-            // TRACE_INFO
+            // CTC_TRACE_INFO
             return SUCCESS;
         }
 
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
     if (SUCCESS == send_to_rs485_sync(send_msg, send_len))
     {
-        // TRACE_INFO
+        // CTC_TRACE_INFO
         return SUCCESS;
     }
 
-    // TRACE_ERR
+    // CTC_TRACE_ERRO
     return FAILED;
 }
 
@@ -728,7 +729,7 @@ int try_create_socket(const char *sockname, int nconn)
 
     if ((socket_handle = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return -1;
     }
 
@@ -739,13 +740,13 @@ int try_create_socket(const char *sockname, int nconn)
 
     if (bind(socket_handle, (struct sockaddr *)&local, len) == -1)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return -1;
     }
 
     if (listen(socket_handle, nconn) == -1)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return -1;
     }
     

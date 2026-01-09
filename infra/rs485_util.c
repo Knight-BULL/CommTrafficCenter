@@ -10,6 +10,8 @@
 #include "com_def.h"
 #include <time.h>
 #include <pthread.h>
+#include "assert.h"
+#include "trace_com.h"
 
 #define RS485_SEND_DATA_WAITTIME   (69)
 
@@ -51,7 +53,7 @@ int iomon_get_frs485_fd(void)
     frs485_fd = open("/dev/ttyS8", O_RDWR|O_NOCTTY|O_NDELAY);
     if (frs485_fd < 0)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
@@ -63,7 +65,7 @@ int iomon_get_frs485_fd(void)
     }
     else
     {
-        TRACE_ERR(PRT, "the fserial device is busy");
+        // CTC_TRACE_ERRO(PRT, "the fserial device is busy");
     }
 
 
@@ -93,7 +95,7 @@ int init_gpio()
 
     if (ctc_gpio_fd < 0)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
@@ -121,7 +123,7 @@ int open_rs485()
 {
     if (FAILED == init_gpio())
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
@@ -131,7 +133,7 @@ int open_rs485()
 
     if(-1 == frs485_fd)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         close(ctc_gpio_fd);
         destroy_ack_ayncer();
         return FAILED;
@@ -207,7 +209,7 @@ int send_to_rs485_sync(const void* _data, const uint16_t _lenth)
     {
         pthread_mutex_unlock(&ack_syncer.lock);
 
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         return FAILED;
     }
 
@@ -216,7 +218,7 @@ int send_to_rs485_sync(const void* _data, const uint16_t _lenth)
     int ret_wait = pthread_cond_timedwait(&ack_syncer.cond, &ack_syncer.lock, &time_out);
     if (ret_wait == ETIMEDOUT)
     {
-        // TRACE_ERR
+        // CTC_TRACE_ERRO
         reslt = FAILED;
     }
     else

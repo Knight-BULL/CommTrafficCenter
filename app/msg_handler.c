@@ -7,6 +7,12 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <unistd.h>
+#include "ctc_trace.h"
+#include "assert.h"
+
+/*TODO 规避编译问题后续改掉*/
+EVENT_PROCESS_BEGIN
+EVENT_PROCESS_END
 
 pthread_t event_poster_thread;
 pthread_t event_handler_thread;
@@ -65,7 +71,9 @@ void *event_poster(void *arg)
             continue;
         }
 
-        // TRACE_INFO(PRT)
+        CTC_TRACE_INFO(TRC, "recv event[0x%x] src shelf is [0x%x] src pid is [0x%x]", \
+                        recv_buf.head.text.event, recv_buf.head.text.src_dir.shelf,\
+                        recv_buf.head.text.src_dir.card, recv_buf.head.text.src_dir.pid);
 
         post_event(&recv_buf);
 
@@ -94,11 +102,11 @@ void *event_handler(void* arg)
             int msg_len = recv_buf.head.text.total_len - sizeof(recv_buf.head) - sizeof(recv_buf.fcs);
             if (SUCCESS != process_event(recv_buf.head.text.event, recv_buf.data, msg_len))
             {
-                // TRACE_ERR
+                CTC_TRACE_ERRO(TRC, "process_event[0x%x] len[%d] FAILED!", recv_buf.head.text.event, msg_len);
             }
             else
             {
-                // TRACE_INFO
+                CTC_TRACE_INFO(TRC, "process_event[0x%x] len[%d] SUCCED!", recv_buf.head.text.event, msg_len);
             }
         }
     }
@@ -110,11 +118,11 @@ void start_event_handler_for(const uint8_t proc_id)
 
     if (pthread_create(&event_poster_thread, NULL, event_poster, NULL) != 0)
     {
-        // TRACE_ERR
+        CTC_TRACE_ERRO(TRC, "create event_poster failed!");
     }
 
     if (pthread_create(&event_handler_thread, NULL, event_handler, NULL) != 0)
     {
-        // TRACE_ERR
+        CTC_TRACE_ERRO(TRC, "create event_handler failed!");
     }
 }
