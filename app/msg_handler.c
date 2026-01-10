@@ -10,10 +10,6 @@
 #include "ctc_trace.h"
 #include "assert.h"
 
-/*TODO 规避编译问题后续改掉*/
-EVENT_PROCESS_BEGIN
-EVENT_PROCESS_END
-
 pthread_t event_poster_thread;
 pthread_t event_handler_thread;
 

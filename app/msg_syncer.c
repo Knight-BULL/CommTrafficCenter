@@ -233,12 +233,14 @@ int sync_event(const Msg_pkg* msg)
         if(msg->head.text.event == event_syncers[i]._on_event)
         {
             notify_handle(&event_syncers[i],msg);
-            // CTC_TRACE_INFO(PRT, "sync event[0x%x] SUCCESS!", msg->head.text.event);
+            CTC_TRACE_INFO(PRT, "sync event[0x%x] SUCCESS!", msg->head.text.event);
             pthread_mutex_unlock(&syncers_lock);
             return SUCCESS;
         }
     }
-    // CTC_TRACE_INFO(PRT, "event[ox%x] seems not need sync, try handle directly!", msg->l
+    
+    CTC_TRACE_INFO(PRT, "event[0x%x] seems not need sync, try handle directly!", msg->head.text.event);
     pthread_mutex_unlock(&syncers_lock);
+
     return FAILED;
 }
