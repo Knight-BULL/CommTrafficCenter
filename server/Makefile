@@ -7,7 +7,7 @@
 
 CROSS_COMPILE ?=
 CC = $(CROSS_COMPILE)gcc
-CFLAGS = -fPIC -Wall -pthread -ggdb -c -lrt -DSM2002_MULTI_IN_DEV
+CFLAGS = -fPIC -Wall -pthread -ggdb -c -lrt 
 LDFLAGS = -pthread -lrt -L../obj/ -lctc_api
 TARGET = ctc 
 

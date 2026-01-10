@@ -15,3 +15,9 @@ git remote set-url origin git@github.com:Knight-BULL/CommTrafficCenter.git
 git remote -v
 #测试 SSH 连接
 ssh -T git@github.com
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/Knight-BULL/CommTrafficCenter.git/'
+
+# 直接删除 known_hosts 中所有 github.com 相关的条目（安全无副作用）
+ssh-keygen -R github.com
+ssh -T git@github.com
